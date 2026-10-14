@@ -1,0 +1,106 @@
+NEXUSBUSINESS — RELATÓRIO TÉCNICO DA FASE 1
+Data: 14/10/2026
+
+1. RESUMO DA AUDITORIA INICIAL
+
+Foi inspecionada a estrutura do módulo app, arquivos Gradle, catálogo de versões, Manifest, temas, recursos, entidades Room, DAOs, Repository, ViewModel, telas Compose e operações que atualizam Product.
+
+O namespace e o applicationId já estavam configurados como com.example.nexusbusiness. O nome Gradle, rótulo Android, cabeçalho, banco e identidade visual também já utilizavam NexusBusiness. Foram encontrados diretórios residuais nexusstock apenas nos caminhos dos testes; os packages internos já estavam corretos. Os testes foram realocados para caminhos nexusbusiness.
+
+A logomarca NB e os ícones existentes foram inspecionados e preservados. O splash foi mantido com ContentScale.Fit e passou a usar largura responsiva limitada, evitando cortes em telas pequenas e expansão excessiva em telas grandes.
+
+2. PROBLEMAS ENCONTRADOS
+
+- Gradle JVM inicialmente apontado para Java 25, incompatível com Gradle 8.10.2.
+- Build inicial bloqueado por acesso ao cache Gradle e, depois, por artefatos Kotlin ausentes no cache offline.
+- Uso de TakePicturePreview, limitado a bitmap de baixa resolução.
+- Gravação e compressão de bitmap diretamente no fluxo da interface.
+- Decodificação integral de fotografias na composição e na listagem.
+- Exclusão imediata da foto salva ao pressionar Remover, antes da confirmação do cadastro.
+- Substituição/cancelamento capazes de deixar arquivos órfãos ou remover a foto anterior.
+- Exclusão do produto sem tratamento do arquivo de fotografia.
+- fallbackToDestructiveMigration() ativo no Room.
+- Cadastro conflitante podia apagar o photoPath existente ao atualizar quantidade sem nova foto.
+- Tema dinâmico podia substituir a paleta oficial roxa/ciano.
+- Ausência de README técnico/acadêmico.
+
+3. ARQUIVOS MODIFICADOS E CRIADOS
+
+Modificados:
+- .gradle/config.properties
+- app/src/main/AndroidManifest.xml
+- app/src/main/java/com/example/nexusbusiness/SplashActivity.kt
+- app/src/main/java/com/example/nexusbusiness/data/local/AppDatabase.kt
+- app/src/main/java/com/example/nexusbusiness/data/local/NexusDao.kt
+- app/src/main/java/com/example/nexusbusiness/data/repository/NexusRepository.kt
+- app/src/main/java/com/example/nexusbusiness/ui/components/ProductPhotoComponents.kt
+- app/src/main/java/com/example/nexusbusiness/ui/screens/ProductRegistrationScreen.kt
+- app/src/main/java/com/example/nexusbusiness/ui/theme/Theme.kt
+- app/src/main/java/com/example/nexusbusiness/viewmodel/MainViewModel.kt
+
+Criados:
+- app/src/main/java/com/example/nexusbusiness/util/ProductImageStorage.kt
+- app/src/main/res/xml/file_paths.xml
+- app/src/test/java/com/example/nexusbusiness/ProductPhotoPersistenceTest.kt
+- app/src/androidTest/java/com/example/nexusbusiness/ExampleInstrumentedTest.kt
+- README.md
+- RELATORIO_NEXUSBUSINESS_FASE1.txt
+
+Removidos/realocados:
+- testes nos diretórios com/example/nexusstock.
+
+4. FUNCIONALIDADES IMPLEMENTADAS
+
+- Captura em resolução completa com ActivityResultContracts.TakePicture e FileProvider.
+- Prévia da imagem, substituição e remoção opcional.
+- Preservação da fotografia atual ao cancelar câmera ou edição.
+- Persistência da nova imagem somente como referência no Room.
+- Exclusão segura da imagem anterior apenas após confirmação no banco.
+- Limpeza da foto na exclusão definitiva do produto quando não houver outra referência.
+- Limpeza tardia de arquivos órfãos e capturas temporárias.
+- Miniaturas quadradas, arredondadas e com placeholder.
+- Decodificação assíncrona e amostrada conforme o tamanho de exibição.
+- Modal responsivo aberto exclusivamente por duplo toque, com ContentScale.Fit, botão X e fechamento pelo botão Voltar.
+- Preservação de photoPath nas operações comerciais baseadas em copy().
+- Tema escuro fixado à identidade roxa/ciano.
+
+5. ALTERAÇÕES NO BANCO DE DADOS
+
+O banco permanece na versão 6. Foi removido fallbackToDestructiveMigration(). Foi adicionada MIGRATION_5_6, que inclui a coluna photoPath TEXT NOT NULL DEFAULT '' na tabela products, preservando registros existentes.
+
+O nome do banco permanece exclusivo: nexus_business_database.
+
+6. PERSISTÊNCIA DAS FOTOGRAFIAS
+
+As imagens são salvas no diretório privado files/product_images com UUID. O banco armazena somente photoPath. Durante a captura é usado cacheDir/product_camera. O processamento lê a orientação EXIF, aplica rotação/espelhamento, limita o maior lado a 1600 pixels e grava JPEG com qualidade 88.
+
+Miniaturas são decodificadas no Dispatchers.IO com limite de 512 pixels. O modal usa limite de 2048 pixels. Arquivos inválidos ou ausentes geram placeholder e não provocam encerramento da aplicação.
+
+7. DEPENDÊNCIAS
+
+Nenhuma dependência externa foi adicionada. Foram reutilizadas APIs Android, AndroidX Core, Compose, Coroutines e Room já presentes no projeto.
+
+8. RESULTADOS DOS TESTES
+
+- ProductPhotoPersistenceTest: 3 testes executados e aprovados. Validam preservação de photoPath em atualização de quantidade, preço, margem e valores calculados.
+- Teste instrumentado inicial: executado no dispositivo 220233L2G / Android 11, mas falhou por assinatura de método de teste não void. A assinatura foi corrigida.
+- Nova tentativa instrumentada: não executou os testes porque o dispositivo recusou a reinstalação via USB com INSTALL_FAILED_USER_RESTRICTED (instalação cancelada pelo usuário).
+- A compilação dos fontes androidTest corrigidos foi concluída antes da etapa de instalação.
+- Testes manuais A a H (cadastro sem/com foto, duplo toque, reinicialização, edição, substituição, cancelamento e exclusão): não foram declarados como aprovados, pois a restrição de instalação impediu a validação no aparelho.
+- Teste I: cobertura automatizada parcial aprovada para preservação de photoPath em operações copy(). A revisão estática confirmou preservação nos fluxos de venda, ajuste de estoque, preço e pedido.
+- lintDebug: executado e aprovado sem erros. Permaneceram 60 avisos não bloqueantes, majoritariamente atualizações disponíveis de dependências, localização e recomendações preexistentes de API.
+
+9. RESULTADO DA COMPILAÇÃO
+
+O assembleDebug, testDebugUnitTest e lintDebug foram executados em conjunto com Gradle 8.10.2 e JDK 21 e terminaram com BUILD SUCCESSFUL. O APK foi gerado em app/build/outputs/apk/debug/app-debug.apk.
+
+O build inicial registrou duas limitações ambientais: AccessDeniedException no cache Gradle durante execução restrita e ausência offline de artefatos Kotlin 2.0.21. Após acesso autorizado aos repositórios declarados, o build foi concluído.
+
+10. PENDÊNCIAS E LIMITAÇÕES CONHECIDAS
+
+- Autorizar instalação via USB no dispositivo e repetir connectedDebugAndroidTest.
+- Executar manualmente os testes A a H com acesso à câmera.
+- A migração instrumentada 5→6 foi implementada e compilada, mas não chegou a executar no aparelho devido a INSTALL_FAILED_USER_RESTRICTED.
+- Permanecem quatro avisos de ícones Compose obsoletos (AutoMirrored) em telas não relacionadas à fotografia; não impedem build nem execução.
+- A pasta fornecida não contém metadados .git, portanto não foi possível auditar histórico, branch ou repositório remoto.
+- Não foram identificadas regressões conhecidas nas regras comerciais por análise estática e testes unitários disponíveis.
