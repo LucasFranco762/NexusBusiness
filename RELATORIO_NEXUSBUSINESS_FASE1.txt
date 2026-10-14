@@ -7,7 +7,7 @@ Foi inspecionada a estrutura do módulo app, arquivos Gradle, catálogo de vers�
 
 O namespace e o applicationId já estavam configurados como com.example.nexusbusiness. O nome Gradle, rótulo Android, cabeçalho, banco e identidade visual também já utilizavam NexusBusiness. Foram encontrados diretórios residuais nexusstock apenas nos caminhos dos testes; os packages internos já estavam corretos. Os testes foram realocados para caminhos nexusbusiness.
 
-A logomarca NB e os ícones existentes foram inspecionados e preservados. O splash foi mantido com ContentScale.Fit e passou a usar largura responsiva limitada, evitando cortes em telas pequenas e expansão excessiva em telas grandes.
+A logomarca NB e os ícones existentes foram inspecionados e preservados. O arquivo Splash.png da raiz foi incorporado integralmente ao recurso drawable e é exibido de forma responsiva durante a inicialização.
 
 2. PROBLEMAS ENCONTRADOS
 
@@ -23,12 +23,14 @@ A logomarca NB e os ícones existentes foram inspecionados e preservados. O spla
 - Cadastro conflitante podia apagar o photoPath existente ao atualizar quantidade sem nova foto.
 - Tema dinâmico podia substituir a paleta oficial roxa/ciano.
 - Ausência de README técnico/acadêmico.
+- Splash controlado por atraso fixo de 1,5 segundo, sem relação com o carregamento real dos dados.
 
 3. ARQUIVOS MODIFICADOS E CRIADOS
 
 Modificados:
 - .gradle/config.properties
 - app/src/main/AndroidManifest.xml
+- app/src/main/java/com/example/nexusbusiness/MainActivity.kt
 - app/src/main/java/com/example/nexusbusiness/SplashActivity.kt
 - app/src/main/java/com/example/nexusbusiness/data/local/AppDatabase.kt
 - app/src/main/java/com/example/nexusbusiness/data/local/NexusDao.kt
@@ -37,6 +39,7 @@ Modificados:
 - app/src/main/java/com/example/nexusbusiness/ui/screens/ProductRegistrationScreen.kt
 - app/src/main/java/com/example/nexusbusiness/ui/theme/Theme.kt
 - app/src/main/java/com/example/nexusbusiness/viewmodel/MainViewModel.kt
+- app/src/main/res/drawable/splash.png
 
 Criados:
 - app/src/main/java/com/example/nexusbusiness/util/ProductImageStorage.kt
@@ -48,6 +51,7 @@ Criados:
 
 Removidos/realocados:
 - testes nos diretórios com/example/nexusstock.
+- app/src/main/java/com/example/nexusbusiness/SplashActivity.kt, substituída pela inicialização integrada à MainActivity.
 
 4. FUNCIONALIDADES IMPLEMENTADAS
 
@@ -63,6 +67,7 @@ Removidos/realocados:
 - Modal responsivo aberto exclusivamente por duplo toque, com ContentScale.Fit, botão X e fechamento pelo botão Voltar.
 - Preservação de photoPath nas operações comerciais baseadas em copy().
 - Tema escuro fixado à identidade roxa/ciano.
+- Splash da raiz mantido na tela até produtos, rotas, vendas e pedidos serem carregados do Room e a manutenção inicial das imagens terminar.
 
 5. ALTERAÇÕES NO BANCO DE DADOS
 

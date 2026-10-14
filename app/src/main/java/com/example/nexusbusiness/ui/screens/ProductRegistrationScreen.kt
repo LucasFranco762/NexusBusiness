@@ -41,6 +41,7 @@ import com.example.nexusbusiness.util.ProductImageStorage
 import com.example.nexusbusiness.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.Locale
 
 @Composable
 fun ProductRegistrationScreen(
@@ -198,7 +199,7 @@ fun ProductRegistrationScreen(
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     CustomTextField(
                         value = nome,
-                        onValueChange = { nome = it.replaceFirstChar { char -> char.uppercase() } },
+                        onValueChange = { nome = it.capitalizeProductName() },
                         label = "Nome do Produto",
                         placeholder = "Produto...",
                         modifier = Modifier.weight(1f)
@@ -283,30 +284,52 @@ fun ProductRegistrationScreen(
                 )
                 Spacer(modifier = Modifier.height(10.dp))
 
+                val interactionSource = remember { MutableInteractionSource() }
+                val isPressed by interactionSource.collectIsPressedAsState()
+                val buttonScale by animateFloatAsState(if (isPressed) 0.92f else 1f, label = "scale")
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    ProductPhotoThumbnail(
-                        photoPath = photoPath,
-                        modifier = Modifier.size(92.dp),
-                        enableDoubleTapPreview = photoPath.isNotBlank()
-                    )
+                    Box(modifier = Modifier.size(80.dp)) {
+                        ProductPhotoThumbnail(
+                            photoPath = photoPath,
+                            modifier = Modifier.fillMaxSize(),
+                            enableDoubleTapPreview = photoPath.isNotBlank()
+                        )
+                        if (photoPath.isNotBlank()) {
+                            IconButton(
+                                onClick = {
+                                    if (photoPath == stagedPhotoPath) {
+                                        ProductImageStorage.deleteManagedPhoto(context, photoPath)
+                                        stagedPhotoPath = null
+                                    }
+                                    photoPath = ""
+                                },
+                                enabled = !isProcessingPhoto && !isSaving,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .size(32.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.DeleteOutline,
+                                    contentDescription = "Remover foto",
+                                    tint = Color(0xFFF87171),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
 
                     Column(
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = if (photoPath.isBlank()) {
-                                "Nenhuma foto cadastrada."
-                            } else {
-                                "Foto vinculada ao produto. Dê dois toques para ampliar."
-                            },
-                            color = TextSecondary,
-                            fontSize = 12.sp
-                        )
+                        if (photoPath.isBlank()) {
+                            Text("Sem foto", color = TextSecondary, fontSize = 12.sp)
+                        }
 
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedButton(
@@ -317,45 +340,12 @@ fun ProductRegistrationScreen(
                             ) {
                                 Icon(Icons.Default.PhotoCamera, contentDescription = null, tint = CyanSecondary)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    if (isProcessingPhoto) "Processando..." else if (photoPath.isBlank()) "Tirar Foto" else "Trocar Foto",
-                                    color = Color.White
-                                )
+                                Text("Foto", color = Color.White)
                             }
 
-                            if (photoPath.isNotBlank()) {
-                                OutlinedButton(
-                                    onClick = {
-                                        if (photoPath == stagedPhotoPath) {
-                                            ProductImageStorage.deleteManagedPhoto(context, photoPath)
-                                            stagedPhotoPath = null
-                                        }
-                                        photoPath = ""
-                                    },
-                                    enabled = !isProcessingPhoto && !isSaving,
-                                    shape = RoundedCornerShape(12.dp),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF87171))
-                                ) {
-                                    Icon(Icons.Default.DeleteOutline, contentDescription = null, tint = Color(0xFFF87171))
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Remover", color = Color.White)
-                                }
-                            }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(20.dp))
-
-                val interactionSource = remember { MutableInteractionSource() }
-                val isPressed by interactionSource.collectIsPressedAsState()
-                val buttonScale by animateFloatAsState(if (isPressed) 0.92f else 1f, label = "scale")
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
                     Surface(
                         onClick = {
                             if (isEnabled && !isProcessingPhoto && !isSaving) {
@@ -591,5 +581,13 @@ fun ProductRegistrationScreen(
                 }
             }
         }
+    }
+}
+
+private fun String.capitalizeProductName(): String = replaceFirstChar { firstCharacter ->
+    if (firstCharacter.isLowerCase()) {
+        firstCharacter.titlecase(Locale.getDefault())
+    } else {
+        firstCharacter.toString()
     }
 }

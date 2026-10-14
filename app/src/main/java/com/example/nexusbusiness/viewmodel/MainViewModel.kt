@@ -25,6 +25,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val sales: StateFlow<List<Sale>>
     val orders: StateFlow<List<Order>>
 
+    private val _isDataReady = MutableStateFlow(false)
+    val isDataReady: StateFlow<Boolean> = _isDataReady.asStateFlow()
+
     private val _isStockLocked = MutableStateFlow(false)
     val isStockLocked: StateFlow<Boolean> = _isStockLocked.asStateFlow()
 
@@ -59,8 +62,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             database.orderDao()
         )
         
-        val baseProductsFlow = repository.allProducts
-        val baseRoutesFlow = repository.allRoutes
+        val baseProductsFlow = repository.allProducts.shareIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            replay = 1
+        )
+        val baseRoutesFlow = repository.allRoutes.shareIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            replay = 1
+        )
+        val baseSalesFlow = repository.allSales.shareIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            replay = 1
+        )
+        val baseOrdersFlow = repository.allOrders.shareIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            replay = 1
+        )
 
         products = combine(baseProductsFlow, baseRoutesFlow, isStockLocked) { rawProducts, rawRoutes, locked ->
             if (locked) {
@@ -83,33 +104,40 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
         
         routes = baseRoutesFlow.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
 
-        sales = repository.allSales.stateIn(
+        sales = baseSalesFlow.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
 
-        orders = repository.allOrders.stateIn(
+        orders = baseOrdersFlow.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
 
         viewModelScope.launch {
+            combine(
+                baseProductsFlow,
+                baseRoutesFlow,
+                baseSalesFlow,
+                baseOrdersFlow
+            ) { _, _, _, _ -> Unit }.first()
             val referencedPhotos = repository.getProductPhotoPaths().toSet()
             withContext(Dispatchers.IO) {
                 ProductImageStorage.cleanupOrphans(application, referencedPhotos)
             }
+            _isDataReady.value = true
         }
     }
 

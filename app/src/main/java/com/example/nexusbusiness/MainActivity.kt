@@ -6,7 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -20,8 +22,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,10 +50,26 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NexusBusinessTheme {
-                NexusBusinessApp()
+                val viewModel: MainViewModel = viewModel()
+                val isDataReady by viewModel.isDataReady.collectAsState()
+                if (isDataReady) {
+                    NexusBusinessApp(viewModel)
+                } else {
+                    NexusBusinessSplash()
+                }
             }
         }
     }
+}
+
+@Composable
+private fun NexusBusinessSplash() {
+    Image(
+        painter = painterResource(R.drawable.splash),
+        contentDescription = "Inicialização do NexusBusiness",
+        contentScale = ContentScale.FillBounds,
+        modifier = Modifier.fillMaxSize()
+    )
 }
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
@@ -329,8 +350,28 @@ fun NexusBottomNavigation(
     ) {
         items.forEachIndexed { index, screen ->
             val selected = currentSelectedIndex == index
-            val borderColor = if (selected) Color(0xFF1E3A8A) else Color(0x00000000)
-            val cardColor = if (selected) CardBackground.copy(alpha = 0.96f) else CardBackground.copy(alpha = 0.72f)
+            val glassGradient = if (selected) {
+                Brush.verticalGradient(
+                    listOf(
+                        Color.White.copy(alpha = 0.18f),
+                        Color(0xFF312E81).copy(alpha = 0.62f),
+                        CyanSecondary.copy(alpha = 0.12f)
+                    )
+                )
+            } else {
+                Brush.verticalGradient(
+                    listOf(
+                        Color.White.copy(alpha = 0.10f),
+                        CardBackground.copy(alpha = 0.62f),
+                        PurplePrimary.copy(alpha = 0.08f)
+                    )
+                )
+            }
+            val glassBorder = if (selected) {
+                BorderStroke(2.dp, Color(0xFF1E3A8A))
+            } else {
+                BorderStroke(1.dp, Color.White.copy(alpha = 0.14f))
+            }
 
             Surface(
                 modifier = Modifier
@@ -338,32 +379,38 @@ fun NexusBottomNavigation(
                     .fillMaxHeight()
                     .clickable { onItemSelected(index) },
                 shape = RoundedCornerShape(16.dp),
-                color = cardColor,
-                border = BorderStroke(2.dp, borderColor),
-                tonalElevation = if (selected) 6.dp else 2.dp,
-                shadowElevation = 0.dp
+                color = Color.Transparent,
+                border = glassBorder,
+                tonalElevation = 0.dp,
+                shadowElevation = if (selected) 8.dp else 2.dp
             ) {
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 6.dp, vertical = 10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                        .background(glassGradient)
                 ) {
-                    Icon(
-                        screen.icon,
-                        contentDescription = screen.label,
-                        tint = Color(0xFFFF9800),
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = screen.label,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = CyanSecondary,
-                        maxLines = 1
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 6.dp, vertical = 10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            screen.icon,
+                            contentDescription = screen.label,
+                            tint = Color(0xFFFF9800),
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = screen.label,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = CyanSecondary,
+                            maxLines = 1
+                        )
+                    }
                 }
             }
         }
@@ -376,5 +423,3 @@ fun PlaceholderScreen(name: String) {
         Text(text = name, color = TextPrimary, fontSize = 24.sp)
     }
 }
-
-

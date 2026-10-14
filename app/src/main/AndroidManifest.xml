@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.nexusbusiness">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:allowBackup="true"
@@ -23,20 +22,15 @@
         </provider>
 
         <activity
-            android:name="com.example.nexusbusiness.SplashActivity"
+            android:name="com.example.nexusbusiness.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.NexusBusiness.Splash">
+            android:label="@string/app_name"
+            android:theme="@style/Theme.NexusBusiness">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name="com.example.nexusbusiness.MainActivity"
-            android:exported="false"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.NexusBusiness" />
     </application>
 
 </manifest>
