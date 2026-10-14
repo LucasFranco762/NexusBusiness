@@ -129,6 +129,9 @@ fun NexusBusinessApp(
     var screenSlideEnabled by remember {
         mutableStateOf(settingsManager.isScreenSlideEnabled())
     }
+    var bottomMenuLabelsEnabled by remember {
+        mutableStateOf(settingsManager.areBottomMenuLabelsEnabled())
+    }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -174,6 +177,7 @@ fun NexusBusinessApp(
                 ) {
                     NexusBottomNavigation(
                         currentSelectedIndex = pagerState.currentPage,
+                        showLabels = bottomMenuLabelsEnabled,
                         onItemSelected = { index ->
                             // Reset do timer ao interagir
                             forceShowNav = false 
@@ -241,6 +245,11 @@ fun NexusBusinessApp(
                             onScreenSlideEnabledChange = { enabled ->
                                 settingsManager.setScreenSlideEnabled(enabled)
                                 screenSlideEnabled = enabled
+                            },
+                            bottomMenuLabelsEnabled = bottomMenuLabelsEnabled,
+                            onBottomMenuLabelsEnabledChange = { enabled ->
+                                settingsManager.setBottomMenuLabelsEnabled(enabled)
+                                bottomMenuLabelsEnabled = enabled
                             }
                         )
                     }
@@ -374,13 +383,23 @@ fun ArrowExpandTrigger(onExpand: () -> Unit) {
 @Composable
 fun NexusBottomNavigation(
     currentSelectedIndex: Int,
+    showLabels: Boolean,
     onItemSelected: (Int) -> Unit
 ) {
     val items = listOf(Screen.Products, Screen.Sales, Screen.History, Screen.Route, Screen.Settings)
     val listState = rememberLazyListState()
 
     LaunchedEffect(currentSelectedIndex) {
-        listState.animateScrollToItem(currentSelectedIndex)
+        val layoutInfo = listState.layoutInfo
+        val selectedItem = layoutInfo.visibleItemsInfo
+            .firstOrNull { it.index == currentSelectedIndex }
+        val isFullyVisible = selectedItem != null &&
+            selectedItem.offset >= layoutInfo.viewportStartOffset &&
+            selectedItem.offset + selectedItem.size <= layoutInfo.viewportEndOffset
+
+        if (currentSelectedIndex == items.lastIndex || !isFullyVisible) {
+            listState.animateScrollToItem(currentSelectedIndex)
+        }
     }
 
     BoxWithConstraints(
@@ -388,7 +407,7 @@ fun NexusBottomNavigation(
             .fillMaxWidth()
             .height(86.dp)
     ) {
-        val buttonWidth = (maxWidth - 44.dp) / 4
+        val buttonWidth = (this.maxWidth - 44.dp) / 4
 
         LazyRow(
             state = listState,
@@ -450,14 +469,16 @@ fun NexusBottomNavigation(
                             tint = Color(0xFFFF9800),
                             modifier = Modifier.size(24.dp)
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = screen.label,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = CyanSecondary,
-                            maxLines = 1
-                        )
+                        if (showLabels) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = screen.label,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = CyanSecondary,
+                                maxLines = 1
+                            )
+                        }
                     }
                 }
             }

@@ -63,17 +63,20 @@ fun SalesScreen(
             NeonButton(
                 text = "Realizar Venda",
                 icon = Icons.Default.AddShoppingCart,
-                onClick = onNavigateToRealizarVenda
+                onClick = onNavigateToRealizarVenda,
+                glassEffect = true
             )
             NeonButton(
                 text = "Pedidos",
                 icon = Icons.Default.ListAlt,
-                onClick = onNavigateToPedidos
+                onClick = onNavigateToPedidos,
+                glassEffect = true
             )
             NeonButton(
                 text = "Lista de Pedidos",
                 icon = Icons.Default.ViewList,
-                onClick = onNavigateToListaPedidos
+                onClick = onNavigateToListaPedidos,
+                glassEffect = true
             )
         }
     }

@@ -61,12 +61,14 @@ fun ProductsScreen(
             NeonButton(
                 text = "Cadastrar Produtos",
                 icon = Icons.Default.AddBox,
-                onClick = onNavigateToCadastro
+                onClick = onNavigateToCadastro,
+                glassEffect = true
             )
             NeonButton(
                 text = "Estoque",
                 icon = Icons.Default.Layers,
-                onClick = onNavigateToEstoque
+                onClick = onNavigateToEstoque,
+                glassEffect = true
             )
         }
     }

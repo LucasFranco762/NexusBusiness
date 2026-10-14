@@ -18,8 +18,19 @@ class AppSettingsManager(context: Context) {
             .apply()
     }
 
+    fun areBottomMenuLabelsEnabled(): Boolean {
+        return preferences.getBoolean(KEY_BOTTOM_MENU_LABELS_ENABLED, true)
+    }
+
+    fun setBottomMenuLabelsEnabled(enabled: Boolean) {
+        preferences.edit()
+            .putBoolean(KEY_BOTTOM_MENU_LABELS_ENABLED, enabled)
+            .apply()
+    }
+
     companion object {
         private const val PREFERENCES_NAME = "nexusbusiness_settings"
         private const val KEY_SCREEN_SLIDE_ENABLED = "screen_slide_enabled"
+        private const val KEY_BOTTOM_MENU_LABELS_ENABLED = "bottom_menu_labels_enabled"
     }
 }

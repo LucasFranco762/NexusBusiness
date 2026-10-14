@@ -2,7 +2,7 @@
 
 Aplicativo Android nativo e offline para controle comercial de pequenos estabelecimentos. O NexusBusiness reúne cadastro de produtos, estoque, rotas, pedidos, vendas, histórico e fluxo de caixa em uma interface escura com identidade visual roxa e ciano.
 
-O projeto é independente do NexusStock: utiliza o pacote `com.example.nexusbusiness`, o banco local `nexus_business_database` e recursos visuais próprios.
+O aplicativo utiliza o pacote `com.example.nexusbusiness`, o banco local `nexus_business_database` e identidade visual própria.
 
 ## Tecnologias
 
@@ -30,14 +30,22 @@ O projeto é independente do NexusStock: utiliza o pacote `com.example.nexusbusi
 
 - CRUD de produtos com fotografia opcional.
 - Controle e ajuste de estoque e preços.
-- Cadastro e seleção de rotas.
+- Cadastro e seleção de rotas com custo operacional.
+- Rateio automático do custo da rota entre os produtos.
 - Registro de pedidos e vendas.
 - Histórico de vendas e fluxo de caixa.
 - Miniaturas nas listagens e ampliação por duplo toque.
 - Proteção opcional por senha na inicialização.
 - Bloqueio por 30 minutos após cinco senhas incorretas.
 - Preferência para habilitar ou desabilitar a navegação entre telas por gesto lateral.
+- Preferência para exibir o Menu de Rodapé com ícones e nomes ou somente com ícones.
 - Operação totalmente offline.
+
+## Rotas e custo operacional
+
+O NexusBusiness permite cadastrar rotas, informar o custo operacional de cada deslocamento e selecionar qual rota está ativa. Essa funcionalidade atende comerciantes que precisam se deslocar para comprar, transportar ou vender mercadorias.
+
+Com uma rota ativa, o sistema distribui seu custo proporcionalmente entre os produtos, considerando o peso financeiro de cada item no valor total do estoque. O rateio unitário calculado é incorporado ao preço de venda juntamente com o custo do produto e sua margem, oferecendo uma composição de preço mais adequada às despesas do deslocamento.
 
 ## Persistência local
 
@@ -53,11 +61,13 @@ São permitidas cinco tentativas. Após o quinto erro, o acesso fica bloqueado p
 
 A aba **Ajustes** também permite desativar o slide entre as telas principais. Quando desligado, a navegação ocorre exclusivamente pelos botões do Menu de Rodapé, cujo scroll horizontal permanece disponível. Essa preferência é mantida após reiniciar o aplicativo.
 
+O Menu de Rodapé pode manter as legendas dos botões visíveis ou apresentar somente os ícones. A alteração preserva o efeito glass, a seleção, a navegação e o scroll lateral, e também permanece após reiniciar o aplicativo.
+
 ## Integração com a câmera
 
 A tela de cadastro usa `ActivityResultContracts.TakePicture` com um `FileProvider`. A câmera grava a imagem completa em um arquivo temporário privado. Depois da captura, o processamento ocorre fora da thread principal e uma prévia é apresentada. Cancelar a câmera ou a edição preserva a fotografia anteriormente salva.
 
-O uso da câmera atende ao requisito acadêmico de recurso nativo do dispositivo. O CRUD de produtos e a persistência Room atendem aos requisitos de cadastro, consulta, atualização, exclusão e armazenamento local.
+Essa integração permite fotografar produtos em resolução adequada e manter as imagens vinculadas aos respectivos cadastros no armazenamento privado do aplicativo.
 
 ## Como abrir
 

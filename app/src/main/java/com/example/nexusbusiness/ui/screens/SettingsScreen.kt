@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Swipe
 import androidx.compose.material.icons.filled.Visibility
@@ -70,7 +71,9 @@ private data class AppInformation(val label: String, val value: String)
 fun SettingsScreen(
     securityManager: AppSecurityManager,
     screenSlideEnabled: Boolean,
-    onScreenSlideEnabledChange: (Boolean) -> Unit
+    onScreenSlideEnabledChange: (Boolean) -> Unit,
+    bottomMenuLabelsEnabled: Boolean,
+    onBottomMenuLabelsEnabledChange: (Boolean) -> Unit
 ) {
     var showAboutDialog by remember { mutableStateOf(false) }
     var securityEnabled by remember { mutableStateOf(securityManager.isPasswordEnabled()) }
@@ -257,6 +260,61 @@ fun SettingsScreen(
                 Switch(
                     checked = screenSlideEnabled,
                     onCheckedChange = onScreenSlideEnabledChange,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = CyanSecondary,
+                        uncheckedThumbColor = TextSecondary,
+                        uncheckedTrackColor = Color.Transparent,
+                        uncheckedBorderColor = TextSecondary
+                    )
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = CardBackground,
+            shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(1.dp, PurplePrimary.copy(alpha = 0.55f))
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = null,
+                        tint = Color(0xFFFB923C),
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "Menu de Rodapé",
+                            color = TextPrimary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                        Text(
+                            text = if (bottomMenuLabelsEnabled) {
+                                "Exibir ícones e nomes dos botões"
+                            } else {
+                                "Exibir somente os ícones dos botões"
+                            },
+                            color = TextSecondary,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+                Switch(
+                    checked = bottomMenuLabelsEnabled,
+                    onCheckedChange = onBottomMenuLabelsEnabledChange,
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.White,
                         checkedTrackColor = CyanSecondary,

@@ -69,12 +69,14 @@ fun HistoryScreen(
             NeonButton(
                 text = "Fluxo de Caixa",
                 icon = Icons.Default.AccountBalanceWallet,
-                onClick = onNavigateToFluxoCaixa
+                onClick = onNavigateToFluxoCaixa,
+                glassEffect = true
             )
             NeonButton(
                 text = "Histórico de Vendas",
                 icon = Icons.Default.History,
-                onClick = onNavigateToHistoricoVendas
+                onClick = onNavigateToHistoricoVendas,
+                glassEffect = true
             )
         }
     }

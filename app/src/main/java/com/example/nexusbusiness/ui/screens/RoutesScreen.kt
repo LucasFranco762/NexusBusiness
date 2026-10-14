@@ -76,7 +76,8 @@ fun RoutesScreen(viewModel: MainViewModel) {
                 routeToEdit = null
                 showRouteDialog = true
             },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            glassEffect = true
         )
 
         Spacer(modifier = Modifier.height(24.dp))

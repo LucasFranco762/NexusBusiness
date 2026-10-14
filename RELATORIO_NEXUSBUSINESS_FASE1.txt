@@ -78,6 +78,7 @@ Removidos/realocados:
 - Confirmação da senha atual para permitir a desativação da segurança.
 - Senha protegida por PBKDF2 com salt aleatório; nenhum valor de senha é armazenado em texto puro.
 - Switch Slide de Tela persistente, permitindo desativar o gesto lateral do pager sem bloquear o scroll do Menu de Rodapé.
+- Switch Menu de Rodapé persistente, alternando entre ícones com nomes e exibição somente dos ícones.
 
 5. ALTERAÇÕES NO BANCO DE DADOS
 
