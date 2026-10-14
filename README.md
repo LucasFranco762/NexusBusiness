@@ -24,6 +24,7 @@ O projeto é independente do NexusStock: utiliza o pacote `com.example.nexusbusi
 - `ui/screens`: telas Compose.
 - `ui/components`: componentes reutilizáveis, incluindo miniaturas e modal de fotografia.
 - `util`: formatação monetária e processamento seguro das imagens.
+- `security`: proteção local por senha e controle persistente de tentativas.
 
 ## Funcionalidades principais
 
@@ -33,6 +34,9 @@ O projeto é independente do NexusStock: utiliza o pacote `com.example.nexusbusi
 - Registro de pedidos e vendas.
 - Histórico de vendas e fluxo de caixa.
 - Miniaturas nas listagens e ampliação por duplo toque.
+- Proteção opcional por senha na inicialização.
+- Bloqueio por 30 minutos após cinco senhas incorretas.
+- Preferência para habilitar ou desabilitar a navegação entre telas por gesto lateral.
 - Operação totalmente offline.
 
 ## Persistência local
@@ -40,6 +44,14 @@ O projeto é independente do NexusStock: utiliza o pacote `com.example.nexusbusi
 Os dados comerciais são mantidos no Room/SQLite. A versão atual do banco é 6 e inclui uma migração não destrutiva da versão 5 para adicionar `photoPath` aos produtos. O projeto não utiliza `fallbackToDestructiveMigration()`.
 
 As fotografias ficam em `files/product_images`, diretório privado do aplicativo. O Room armazena apenas o caminho do arquivo. Imagens capturadas são corrigidas conforme a orientação EXIF, redimensionadas para no máximo 1600 pixels no maior lado e comprimidas em JPEG. Arquivos substituídos ou removidos só são apagados depois que a alteração é persistida e nenhuma entidade os referencia.
+
+## Segurança de acesso
+
+A proteção pode ser ativada na aba **Ajustes** com uma senha de no mínimo seis caracteres. A senha não é armazenada em texto puro: o aplicativo persiste somente um hash derivado por PBKDF2, acompanhado de um salt aleatório, em preferências privadas. Ao iniciar, o conteúdo do aplicativo permanece inacessível até a autenticação.
+
+São permitidas cinco tentativas. Após o quinto erro, o acesso fica bloqueado por 30 minutos, inclusive se o aplicativo for encerrado e aberto novamente. Ao término desse período, cinco novas tentativas são liberadas. Para desativar a proteção, a senha atual deve ser confirmada.
+
+A aba **Ajustes** também permite desativar o slide entre as telas principais. Quando desligado, a navegação ocorre exclusivamente pelos botões do Menu de Rodapé, cujo scroll horizontal permanece disponível. Essa preferência é mantida após reiniciar o aplicativo.
 
 ## Integração com a câmera
 
@@ -72,4 +84,5 @@ O APK de depuração é gerado em `app/build/outputs/apk/debug/app-debug.apk`.
 - A captura depende de um aplicativo de câmera disponível no dispositivo.
 - A migração explícita cobre a atualização do banco NexusBusiness da versão 5 para a 6; bancos de outros aplicativos não são importados.
 - Testes de câmera, gestos e reinicialização exigem validação manual ou instrumentação UI em dispositivo com instalação via USB autorizada.
+- O fluxo visual de criação, desativação, autenticação e bloqueio da senha requer validação manual em dispositivo ou emulador.
 - O aplicativo não sincroniza dados nem imagens com serviços externos.

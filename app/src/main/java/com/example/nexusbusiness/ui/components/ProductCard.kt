@@ -14,10 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nexusbusiness.data.model.Product
 import com.example.nexusbusiness.ui.theme.*
+import java.util.Locale
 
 @Composable
 fun ProductCard(
@@ -79,6 +81,8 @@ fun ProductCard(
                                 color = Color.White,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.weight(1f, fill = false)
                             )
 
@@ -110,21 +114,15 @@ fun ProductCard(
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    if (product.photoPath.isNotBlank()) {
-                        Text(
-                            text = "Dê dois toques na foto para ampliar",
-                            color = TextSecondary,
-                            fontSize = 10.sp
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                    }
-
-                    Row(
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Bottom
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text("Qtd: ", color = CyanSecondary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                 Text(product.qtd.toString(), color = TextPrimary, fontSize = 10.sp)
@@ -134,23 +132,36 @@ fun ProductCard(
                                 Text("Rateio: ", color = Color(0xFFF97316), fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                 Text(product.rateio, color = TextPrimary, fontSize = 10.sp)
                             }
+                            IconButton(onClick = { onDelete(product) }, modifier = Modifier.size(24.dp)) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Excluir",
+                                    tint = Color(0xFFF87171),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text("Margem: ", color = CyanSecondary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                Text(String.format("%.2f%%", product.margem), color = TextPrimary, fontSize = 10.sp)
-                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(String.format(Locale.getDefault(), "%.1f%%", product.margem), color = TextPrimary, fontSize = 10.sp)
+                                Spacer(modifier = Modifier.width(4.dp))
                                 Text("|", color = Color(0xFF334155), fontSize = 10.sp)
-                                Spacer(modifier = Modifier.width(12.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
                                 Text("Custo: ", color = CyanSecondary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                 Text(product.custo, color = TextPrimary, fontSize = 10.sp)
                             }
-                        }
-
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             IconButton(onClick = { onEdit(product) }, modifier = Modifier.size(24.dp)) {
-                                Icon(Icons.Default.Edit, contentDescription = "Editar", tint = Color(0xFF818CF8), modifier = Modifier.size(16.dp))
-                            }
-                            IconButton(onClick = { onDelete(product) }, modifier = Modifier.size(24.dp)) {
-                                Icon(Icons.Default.Delete, contentDescription = "Excluir", tint = Color(0xFFF87171), modifier = Modifier.size(16.dp))
+                                Icon(
+                                    Icons.Default.Edit,
+                                    contentDescription = "Editar",
+                                    tint = Color(0xFF818CF8),
+                                    modifier = Modifier.size(16.dp)
+                                )
                             }
                         }
                     }

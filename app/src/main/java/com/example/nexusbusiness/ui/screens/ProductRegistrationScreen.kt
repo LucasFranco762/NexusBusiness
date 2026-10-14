@@ -421,27 +421,45 @@ fun ProductRegistrationScreen(
                             .fillMaxWidth()
                             .border(1.dp, Color(0xFF10B981), RoundedCornerShape(12.dp))
                     ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            ProductPhotoThumbnail(
-                                photoPath = product.photoPath,
-                                modifier = Modifier.size(52.dp),
-                                enableDoubleTapPreview = product.photoPath.isNotBlank()
-                            )
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(product.nome, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                Text(
-                                    "QTD: ${product.qtd} | CUSTO: ${product.custo} | MARGEM: ${product.margem}%",
-                                    color = TextSecondary,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                ProductPhotoThumbnail(
+                                    photoPath = product.photoPath,
+                                    modifier = Modifier.size(52.dp),
+                                    enableDoubleTapPreview = product.photoPath.isNotBlank()
                                 )
+
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        product.nome,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp,
+                                        modifier = Modifier.padding(end = 20.dp)
+                                    )
+                                    Text(
+                                        "QTD: ${product.qtd}  |  CUSTO: ${product.custo}  |  MARGEM: ${product.margem}%",
+                                        color = TextSecondary,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        softWrap = false
+                                    )
+                                }
                             }
-                            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF10B981), modifier = Modifier.size(16.dp))
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = "Produto cadastrado",
+                                tint = Color(0xFF10B981),
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(10.dp)
+                                    .size(16.dp)
+                            )
                         }
                     }
                 }

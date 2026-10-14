@@ -31,6 +31,7 @@ Modificados:
 - .gradle/config.properties
 - app/src/main/AndroidManifest.xml
 - app/src/main/java/com/example/nexusbusiness/MainActivity.kt
+- app/src/main/java/com/example/nexusbusiness/ui/screens/SettingsScreen.kt
 - app/src/main/java/com/example/nexusbusiness/SplashActivity.kt
 - app/src/main/java/com/example/nexusbusiness/data/local/AppDatabase.kt
 - app/src/main/java/com/example/nexusbusiness/data/local/NexusDao.kt
@@ -42,6 +43,9 @@ Modificados:
 - app/src/main/res/drawable/splash.png
 
 Criados:
+- app/src/main/java/com/example/nexusbusiness/security/AppSecurityManager.kt
+- app/src/main/java/com/example/nexusbusiness/settings/AppSettingsManager.kt
+- app/src/main/java/com/example/nexusbusiness/ui/screens/AppLockScreen.kt
 - app/src/main/java/com/example/nexusbusiness/util/ProductImageStorage.kt
 - app/src/main/res/xml/file_paths.xml
 - app/src/test/java/com/example/nexusbusiness/ProductPhotoPersistenceTest.kt
@@ -68,6 +72,12 @@ Removidos/realocados:
 - Preservação de photoPath nas operações comerciais baseadas em copy().
 - Tema escuro fixado à identidade roxa/ciano.
 - Splash da raiz mantido na tela até produtos, rotas, vendas e pedidos serem carregados do Room e a manutenção inicial das imagens terminar.
+- Aba Ajustes com proteção opcional por senha de no mínimo seis caracteres.
+- Autenticação obrigatória na inicialização quando a proteção está ativa.
+- Limite persistente de cinco erros, seguido de bloqueio por 30 minutos e liberação automática de cinco novas tentativas.
+- Confirmação da senha atual para permitir a desativação da segurança.
+- Senha protegida por PBKDF2 com salt aleatório; nenhum valor de senha é armazenado em texto puro.
+- Switch Slide de Tela persistente, permitindo desativar o gesto lateral do pager sem bloquear o scroll do Menu de Rodapé.
 
 5. ALTERAÇÕES NO BANCO DE DADOS
 
@@ -85,6 +95,8 @@ Miniaturas são decodificadas no Dispatchers.IO com limite de 512 pixels. O moda
 
 Nenhuma dependência externa foi adicionada. Foram reutilizadas APIs Android, AndroidX Core, Compose, Coroutines e Room já presentes no projeto.
 
+A segurança utiliza SharedPreferences privadas, SecureRandom, PBKDF2WithHmacSHA1 e comparação constante com MessageDigest.isEqual, todos fornecidos pela plataforma Android/Java.
+
 8. RESULTADOS DOS TESTES
 
 - ProductPhotoPersistenceTest: 3 testes executados e aprovados. Validam preservação de photoPath em atualização de quantidade, preço, margem e valores calculados.
@@ -94,10 +106,13 @@ Nenhuma dependência externa foi adicionada. Foram reutilizadas APIs Android, An
 - Testes manuais A a H (cadastro sem/com foto, duplo toque, reinicialização, edição, substituição, cancelamento e exclusão): não foram declarados como aprovados, pois a restrição de instalação impediu a validação no aparelho.
 - Teste I: cobertura automatizada parcial aprovada para preservação de photoPath em operações copy(). A revisão estática confirmou preservação nos fluxos de venda, ajuste de estoque, preço e pedido.
 - lintDebug: executado e aprovado sem erros. Permaneceram 60 avisos não bloqueantes, majoritariamente atualizações disponíveis de dependências, localização e recomendações preexistentes de API.
+- Proteção por senha: revisão estática dos fluxos de ativação, desativação autenticada, cinco tentativas, persistência do bloqueio e liberação após 30 minutos. O fluxo visual ainda não foi executado em dispositivo.
 
 9. RESULTADO DA COMPILAÇÃO
 
 O assembleDebug, testDebugUnitTest e lintDebug foram executados em conjunto com Gradle 8.10.2 e JDK 21 e terminaram com BUILD SUCCESSFUL. O APK foi gerado em app/build/outputs/apk/debug/app-debug.apk.
+
+Após a implementação da proteção por senha, assembleDebug e lintDebug foram novamente executados com Gradle 8.10.2 e JDK 21, ambos com BUILD SUCCESSFUL.
 
 O build inicial registrou duas limitações ambientais: AccessDeniedException no cache Gradle durante execução restrita e ausência offline de artefatos Kotlin 2.0.21. Após acesso autorizado aos repositórios declarados, o build foi concluído.
 
@@ -105,6 +120,7 @@ O build inicial registrou duas limitações ambientais: AccessDeniedException no
 
 - Autorizar instalação via USB no dispositivo e repetir connectedDebugAndroidTest.
 - Executar manualmente os testes A a H com acesso à câmera.
+- Validar em dispositivo os fluxos de ativação, autenticação, cinco erros, espera de 30 minutos e desativação da senha.
 - A migração instrumentada 5→6 foi implementada e compilada, mas não chegou a executar no aparelho devido a INSTALL_FAILED_USER_RESTRICTED.
 - Permanecem quatro avisos de ícones Compose obsoletos (AutoMirrored) em telas não relacionadas à fotografia; não impedem build nem execução.
 - A pasta fornecida não contém metadados .git, portanto não foi possível auditar histórico, branch ou repositório remoto.

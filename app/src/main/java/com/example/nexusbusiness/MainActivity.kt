@@ -10,6 +10,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,6 +40,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.nexusbusiness.data.model.Product
+import com.example.nexusbusiness.security.AppSecurityManager
+import com.example.nexusbusiness.settings.AppSettingsManager
 import com.example.nexusbusiness.ui.components.NexusHeader
 import com.example.nexusbusiness.ui.screens.*
 import com.example.nexusbusiness.ui.theme.*
@@ -52,10 +57,25 @@ class MainActivity : ComponentActivity() {
             NexusBusinessTheme {
                 val viewModel: MainViewModel = viewModel()
                 val isDataReady by viewModel.isDataReady.collectAsState()
-                if (isDataReady) {
-                    NexusBusinessApp(viewModel)
-                } else {
-                    NexusBusinessSplash()
+                val securityManager = remember { AppSecurityManager(applicationContext) }
+                val settingsManager = remember { AppSettingsManager(applicationContext) }
+                var isSessionAuthenticated by remember {
+                    mutableStateOf(!securityManager.isPasswordEnabled())
+                }
+
+                when {
+                    !isDataReady -> NexusBusinessSplash()
+                    securityManager.isPasswordEnabled() && !isSessionAuthenticated -> {
+                        AppLockScreen(
+                            securityManager = securityManager,
+                            onUnlocked = { isSessionAuthenticated = true }
+                        )
+                    }
+                    else -> NexusBusinessApp(
+                        viewModel = viewModel,
+                        securityManager = securityManager,
+                        settingsManager = settingsManager
+                    )
                 }
             }
         }
@@ -77,6 +97,7 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
     object Sales : Screen("sales", "Vendas", Icons.Default.MonetizationOn)
     object History : Screen("history", "Histórico", Icons.Default.History)
     object Route : Screen("route", "Rota", Icons.Default.Map)
+    object Settings : Screen("settings", "Ajustes", Icons.Default.Settings)
     
     // Sub-screens
     object ProductRegistration : Screen("registration", "Cadastro", Icons.Default.Add)
@@ -93,7 +114,11 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
 }
 
 @Composable
-fun NexusBusinessApp(viewModel: MainViewModel = viewModel()) {
+fun NexusBusinessApp(
+    viewModel: MainViewModel = viewModel(),
+    securityManager: AppSecurityManager,
+    settingsManager: AppSettingsManager
+) {
     val navController = rememberNavController()
     val isOnline by viewModel.isOnline.collectAsState()
     val routes by viewModel.routes.collectAsState()
@@ -101,14 +126,17 @@ fun NexusBusinessApp(viewModel: MainViewModel = viewModel()) {
     
     var editingProduct by remember { mutableStateOf<Product?>(null) }
     var forceShowNav by remember { mutableStateOf(false) }
+    var screenSlideEnabled by remember {
+        mutableStateOf(settingsManager.isScreenSlideEnabled())
+    }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     
     val isMainPagerActive = currentRoute == Screen.MainPager.route || currentRoute == null
     
-    // PagerState para as 4 telas primárias
-    val pagerState = rememberPagerState(pageCount = { 4 })
+    // PagerState para as 5 telas primárias
+    val pagerState = rememberPagerState(pageCount = { 5 })
     val scope = rememberCoroutineScope()
 
     // Efeito Slide para o BottomNav
@@ -174,7 +202,8 @@ fun NexusBusinessApp(viewModel: MainViewModel = viewModel()) {
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.fillMaxSize(),
-                    beyondViewportPageCount = 0 // OTIMIZAÇÃO: Carrega apenas a tela visível
+                    beyondViewportPageCount = 0, // OTIMIZAÇÃO: Carrega apenas a tela visível
+                    userScrollEnabled = screenSlideEnabled
                 ) { page ->
                     when (page) {
                         0 -> ProductsScreen(
@@ -206,6 +235,14 @@ fun NexusBusinessApp(viewModel: MainViewModel = viewModel()) {
                             }
                         )
                         3 -> RoutesScreen(viewModel = viewModel)
+                        4 -> SettingsScreen(
+                            securityManager = securityManager,
+                            screenSlideEnabled = screenSlideEnabled,
+                            onScreenSlideEnabledChange = { enabled ->
+                                settingsManager.setScreenSlideEnabled(enabled)
+                                screenSlideEnabled = enabled
+                            }
+                        )
                     }
                 }
             }
@@ -339,16 +376,27 @@ fun NexusBottomNavigation(
     currentSelectedIndex: Int,
     onItemSelected: (Int) -> Unit
 ) {
-    val items = listOf(Screen.Products, Screen.Sales, Screen.History, Screen.Route)
+    val items = listOf(Screen.Products, Screen.Sales, Screen.History, Screen.Route, Screen.Settings)
+    val listState = rememberLazyListState()
 
-    Row(
+    LaunchedEffect(currentSelectedIndex) {
+        listState.animateScrollToItem(currentSelectedIndex)
+    }
+
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 10.dp, vertical = 8.dp)
-            .height(86.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            .height(86.dp)
     ) {
-        items.forEachIndexed { index, screen ->
+        val buttonWidth = (maxWidth - 44.dp) / 4
+
+        LazyRow(
+            state = listState,
+            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            itemsIndexed(items) { index, screen ->
             val selected = currentSelectedIndex == index
             val glassGradient = if (selected) {
                 Brush.verticalGradient(
@@ -375,7 +423,7 @@ fun NexusBottomNavigation(
 
             Surface(
                 modifier = Modifier
-                    .weight(1f)
+                    .width(buttonWidth)
                     .fillMaxHeight()
                     .clickable { onItemSelected(index) },
                 shape = RoundedCornerShape(16.dp),
@@ -413,6 +461,7 @@ fun NexusBottomNavigation(
                     }
                 }
             }
+        }
         }
     }
 }
