@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nexusbusiness.data.model.Sale
+import com.example.nexusbusiness.ui.components.PressEffectIconButton as IconButton
 import com.example.nexusbusiness.ui.theme.*
 import com.example.nexusbusiness.viewmodel.MainViewModel
 import java.text.SimpleDateFormat

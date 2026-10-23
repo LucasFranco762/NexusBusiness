@@ -22,6 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.nexusbusiness.ui.theme.*
+import com.example.nexusbusiness.ui.components.PressEffectButton as Button
+import com.example.nexusbusiness.ui.components.PressEffectIconButton as IconButton
+import com.example.nexusbusiness.ui.components.PressEffectTextButton as TextButton
 import com.example.nexusbusiness.util.CurrencyUtils
 import com.example.nexusbusiness.viewmodel.MainViewModel
 

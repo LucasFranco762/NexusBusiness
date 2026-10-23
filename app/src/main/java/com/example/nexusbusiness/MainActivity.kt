@@ -9,6 +9,8 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -43,6 +45,7 @@ import com.example.nexusbusiness.data.model.Product
 import com.example.nexusbusiness.security.AppSecurityManager
 import com.example.nexusbusiness.settings.AppSettingsManager
 import com.example.nexusbusiness.ui.components.NexusHeader
+import com.example.nexusbusiness.ui.components.pressEffect3D
 import com.example.nexusbusiness.ui.screens.*
 import com.example.nexusbusiness.ui.theme.*
 import com.example.nexusbusiness.viewmodel.MainViewModel
@@ -351,6 +354,8 @@ fun NexusBusinessApp(
 
 @Composable
 fun ArrowExpandTrigger(onExpand: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val alpha by infiniteTransition.animateFloat(
         initialValue = 0.3f,
@@ -366,7 +371,12 @@ fun ArrowExpandTrigger(onExpand: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 8.dp)
-            .clickable { onExpand() },
+            .pressEffect3D(isPressed, RoundedCornerShape(16.dp))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onExpand
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
@@ -417,6 +427,9 @@ fun NexusBottomNavigation(
         ) {
             itemsIndexed(items) { index, screen ->
             val selected = currentSelectedIndex == index
+            val interactionSource = remember { MutableInteractionSource() }
+            val isPressed by interactionSource.collectIsPressedAsState()
+            val buttonShape = RoundedCornerShape(16.dp)
             val glassGradient = if (selected) {
                 Brush.verticalGradient(
                     listOf(
@@ -444,8 +457,13 @@ fun NexusBottomNavigation(
                 modifier = Modifier
                     .width(buttonWidth)
                     .fillMaxHeight()
-                    .clickable { onItemSelected(index) },
-                shape = RoundedCornerShape(16.dp),
+                    .pressEffect3D(isPressed, buttonShape)
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClick = { onItemSelected(index) }
+                    ),
+                shape = buttonShape,
                 color = Color.Transparent,
                 border = glassBorder,
                 tonalElevation = 0.dp,

@@ -26,6 +26,9 @@ import androidx.compose.ui.window.Dialog
 import com.example.nexusbusiness.data.model.Order
 import com.example.nexusbusiness.data.model.Product
 import com.example.nexusbusiness.ui.components.CustomTextField
+import com.example.nexusbusiness.ui.components.PressEffectButton as Button
+import com.example.nexusbusiness.ui.components.PressEffectIconButton as IconButton
+import com.example.nexusbusiness.ui.components.PressEffectTextButton as TextButton
 import com.example.nexusbusiness.ui.theme.*
 import com.example.nexusbusiness.util.CurrencyUtils
 import com.example.nexusbusiness.viewmodel.MainViewModel

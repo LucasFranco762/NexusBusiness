@@ -101,10 +101,10 @@ fun RouteCard(
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    IconButton(onClick = { onEdit(route) }, modifier = Modifier.size(24.dp)) {
+                    PressEffectIconButton(onClick = { onEdit(route) }, modifier = Modifier.size(24.dp)) {
                         Icon(Icons.Default.Edit, contentDescription = "Editar", tint = Color(0xFF818CF8), modifier = Modifier.size(18.dp))
                     }
-                    IconButton(onClick = { onDelete(route) }, modifier = Modifier.size(24.dp)) {
+                    PressEffectIconButton(onClick = { onDelete(route) }, modifier = Modifier.size(24.dp)) {
                         Icon(Icons.Default.Delete, contentDescription = "Excluir", tint = Color(0xFFF87171), modifier = Modifier.size(18.dp))
                     }
                 }

@@ -33,12 +33,12 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import com.example.nexusbusiness.ui.components.PressEffectButton as Button
+import com.example.nexusbusiness.ui.components.PressEffectIconButton as IconButton
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -538,4 +538,3 @@ fun MakeSaleScreen(
         )
     }
 }
-

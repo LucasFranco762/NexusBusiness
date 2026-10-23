@@ -132,7 +132,7 @@ fun ProductCard(
                                 Text("Rateio: ", color = Color(0xFFF97316), fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                 Text(product.rateio, color = TextPrimary, fontSize = 10.sp)
                             }
-                            IconButton(onClick = { onDelete(product) }, modifier = Modifier.size(24.dp)) {
+                            PressEffectIconButton(onClick = { onDelete(product) }, modifier = Modifier.size(24.dp)) {
                                 Icon(
                                     Icons.Default.Delete,
                                     contentDescription = "Excluir",
@@ -155,7 +155,7 @@ fun ProductCard(
                                 Text("Custo: ", color = CyanSecondary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                 Text(product.custo, color = TextPrimary, fontSize = 10.sp)
                             }
-                            IconButton(onClick = { onEdit(product) }, modifier = Modifier.size(24.dp)) {
+                            PressEffectIconButton(onClick = { onEdit(product) }, modifier = Modifier.size(24.dp)) {
                                 Icon(
                                     Icons.Default.Edit,
                                     contentDescription = "Editar",

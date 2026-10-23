@@ -3,9 +3,13 @@ package com.example.nexusbusiness.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -29,11 +33,13 @@ fun NeonButton(
         .fillMaxWidth(0.8f)
         .padding(vertical = 8.dp)
     val buttonShape = RoundedCornerShape(16.dp)
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
 
     if (glassEffect) {
         Surface(
             onClick = onClick,
-            modifier = buttonModifier,
+            modifier = buttonModifier.pressEffect3D(isPressed, buttonShape),
             shape = buttonShape,
             color = Color.Transparent,
             contentColor = CyanSecondary,
@@ -47,7 +53,8 @@ fun NeonButton(
                     )
                 )
             ),
-            shadowElevation = 8.dp
+            shadowElevation = 8.dp,
+            interactionSource = interactionSource
         ) {
             Box(
                 modifier = Modifier
@@ -67,7 +74,7 @@ fun NeonButton(
             }
         }
     } else {
-        OutlinedButton(
+        PressEffectOutlinedButton(
             onClick = onClick,
             modifier = buttonModifier,
             shape = buttonShape,
@@ -76,7 +83,8 @@ fun NeonButton(
                 contentColor = CyanSecondary,
                 containerColor = CyanSecondary.copy(alpha = 0.05f)
             ),
-            contentPadding = PaddingValues(16.dp)
+            contentPadding = PaddingValues(16.dp),
+            interactionSource = interactionSource
         ) {
             NeonButtonContent(text = text, icon = icon)
         }
