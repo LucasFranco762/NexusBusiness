@@ -9,6 +9,7 @@ O aplicativo utiliza o pacote `com.example.nexusbusiness`, o banco local `nexus_
 - Kotlin
 - Android nativo (SDK mínimo 24, alvo 35)
 - Jetpack Compose e Material 3
+- Animações de interação com APIs nativas do Compose
 - MVVM com Repository
 - Room sobre SQLite
 - Kotlin Coroutines e Flow
@@ -39,7 +40,16 @@ O aplicativo utiliza o pacote `com.example.nexusbusiness`, o banco local `nexus_
 - Bloqueio por 30 minutos após cinco senhas incorretas.
 - Preferência para habilitar ou desabilitar a navegação entre telas por gesto lateral.
 - Preferência para exibir o Menu de Rodapé com ícones e nomes ou somente com ícones.
+- Efeito 3D de pressionamento nos botões, com escala, deslocamento e sombra interna.
 - Operação totalmente offline.
+
+## Interação dos botões
+
+Os botões das telas utilizam um efeito **3D Press** reutilizável. Ao pressionar, o componente reduz levemente sua escala, desloca-se para baixo, diminui a elevação externa e recebe uma sombra interna que simula o afundamento. Ao soltar, retorna suavemente ao estado normal.
+
+O comportamento é aplicado aos botões preenchidos, contornados, de texto, de ícone e aos botões neon. A seta de expansão e os itens do Menu de Rodapé também seguem a mesma resposta visual. Estados desabilitados, ações, formatos e recursos de acessibilidade permanecem preservados.
+
+A implementação central está em `ui/components/PressEffectButtons.kt`, evitando duplicação e mantendo a animação consistente entre as telas.
 
 ## Rotas e custo operacional
 
